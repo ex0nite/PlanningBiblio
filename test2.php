@@ -5,9 +5,13 @@ require_once "planningHebdo/class.planningHebdo.php";
 require_once "planningHebdo/planning.php";
 
 // Définition des équipes :
-$equipe1=array("08:30:00","09:30:59","16:30:00","17:3O:59");    // Heure de début -30min, Heure de début +30min, Heure de fin -30min, Heure de fin +30min
-$equipe2=array("09:30:00","10:30:59","17:30:00","18:3O:59");
-$equipe3=array("12:30:00","13:30:59","19:30:00","20:3O:59");
+/*
+$equipes_heures[0]=array("08:30:00","09:30:59","16:30:00","17:3O:59");    // Heure de début -30min, Heure de début +30min, Heure de fin -30min, Heure de fin +30min
+$equipes_heures[1]=array("09:30:00","10:30:59","17:30:00","18:3O:59");
+$equipes_heures[2]=array("12:30:00","13:30:59","19:30:00","20:3O:59");
+*/
+$equipes_heures=array(array("09:00:00","17:00:00"),array("10:00:00","18:00:00"),array("13:00:00","20:00:00"));
+
 
 // Date
 $date=filter_input(INPUT_GET,"date",FILTER_CALLBACK,array("options"=>"sanitize_dateSQL"));
@@ -77,10 +81,11 @@ if(!$config['ctrlHresAgents'] and ($d->position==6 or $d->position==0)){
   $verif=false; // on ne verifie pas les heures des agents le samedi et le dimanche (Si ctrlHresAgents est desactivé)
 }
 
-$eq1=array();
-$eq2=array();
-$eq3=array();
-$eq4=array();
+$equipes=array(array(),array(),array());
+// $eq1=array();
+// $eq2=array();
+// $eq3=array();
+// $eq4=array();
 
 
 // Si il y a des agents et verification des heures de présences
@@ -166,70 +171,93 @@ if($db->result and $verif){
 
     $tab=array("id"=>$elem['id'],"nom"=>$elem['nom']." ".$elem['prenom'],"site"=>$siteAgent,"heures"=>$horaires, 
       "h0"=>$heures[0], "h1"=>$heures[1], "h2"=>$heures[2], "h3"=>$heures[3] );
-
-    if($heures[0]>=$equipe1[0] and $heures[0]<=$equipe1[1] and $heures[3]>=$equipe1[2] and $heures[3]<=$equipe1[3]){
+/*
+    if($heures[0]>=$equipes_heures[0][0] and $heures[0]<=$equipes_heures[0][1] and $heures[3]>=$equipes_heures[0][2] and $heures[3]<=$equipes_heures[0][3]){
       $eq1[]=$tab;
-    }elseif($heures[0]>=$equipe2[0] and $heures[0]<=$equipe2[1] and $heures[3]>=$equipe2[2] and $heures[3]<=$equipe2[3]){
+    }elseif($heures[0]>=$equipes_heures[1][0] and $heures[0]<=$equipes_heures[1][1] and $heures[3]>=$equipes_heures[1][2] and $heures[3]<=$equipes_heures[1][3]){
       $eq2[]=$tab;
-    }elseif($heures[0]>=$equipe3[0] and $heures[0]<=$equipe3[1] and $heures[3]>=$equipe3[2] and $heures[3]<=$equipe3[3]){
+    }elseif($heures[0]>=$equipes_heures[2][0] and $heures[0]<=$equipes_heures[2][1] and $heures[3]>=$equipes_heures[2][2] and $heures[3]<=$equipes_heures[2][3]){
       $eq3[]=$tab;
-    }elseif($heures[2]>=$equipe3[0] and $heures[2]<=$equipe3[1] and $heures[3]>=$equipe3[2] and $heures[3]<=$equipe3[3]){
+    }elseif($heures[2]>=$equipes_heures[2][0] and $heures[2]<=$equipes_heures[2][1] and $heures[3]>=$equipes_heures[2][2] and $heures[3]<=$equipes_heures[2][3]){
       $eq3[]=$tab;
     }elseif($heures[0] or $heures[2]){
       $eq4[]=$tab;
     }
+    
+*/
+    if($heures[3]>=$equipes_heures[2][1] or $heures[1]>=$equipes_heures[2][1]){
+      if($heures[0]==$equipes_heures[2][0] and $heures[3]==$equipes_heures[2][1]){
+	if($heures[1] and $heures[2]){
+	  $tab["heures"]=" Pause {$heures[1]}-{$heures[2]}";
+	}else{
+	  $tab["heures"]=null;
+	}
+      }
+      $equipes[2][]=$tab;
+    }elseif($heures[3]>=$equipes_heures[1][1] or $heures[1]>=$equipes_heures[1][1]){
+      if($heures[0]==$equipes_heures[1][0] and $heures[3]==$equipes_heures[1][1]){
+	if($heures[1] and $heures[2]){
+	  $tab["heures"]=" Pause {$heures[1]}-{$heures[2]}";
+	}else{
+	  $tab["heures"]=null;
+	}
+      }
+      $equipes[1][]=$tab;
+    }elseif($heures[0] or $heures[2]){
+      if($heures[0]==$equipes_heures[0][0] and $heures[3]==$equipes_heures[0][1]){
+	if($heures[1] and $heures[2]){
+	  $tab["heures"]=" Pause ".heure2($heures[1])."-".heure2($heures[2]);
+	}else{
+	  $tab["heures"]=null;
+	}
+      }
+      $equipes[0][]=$tab;
+    }
+
   }
 }
 
-$nb1=count($eq1);
-$nb2=count($eq2);
-$nb3=count($eq3);
-$nb4=count($eq4);
+// $nb1=count($eq1);
+// $nb2=count($eq2);
+// $nb3=count($eq3);
+// $nb4=count($eq4);
+
 
 //usort($presents,"cmp_h0_h2");
 
 echo "<table class='tableauStandard'>\n";
-echo "<tr><td><h3 style='text-align:left;margin:40px 0 0 0;'>Liste des présents</h3></td>\n";
-if(!empty($absences)){
-  echo "<td><h3 style='text-align:left;margin:40px 0 0 0;'>Liste des absents</h3></td>";
-}
-echo "</tr>\n";
+// echo "<tr><td><h3 style='text-align:left;margin:40px 0 0 0;'>Liste des présents</h3></td>\n";
+// if(!empty($absences)){
+//   echo "<td><h3 style='text-align:left;margin:40px 0 0 0;'>Liste des absents</h3></td>";
+// }
+// echo "</tr>\n";
 
 // Liste des présents
 echo "<tr style='vertical-align:top;'>";
-echo "<td>";
-echo "<b>Equipe 1 ($nb1)</b>\n";
-echo "<table cellspacing='0'> ";
-$class="tr1";foreach($eq1 as $elem){
-  $class=$class=="tr1"?"tr2":"tr1";
-  echo "<tr class='$class'><td>{$elem['nom']}</td><td style='padding-left:15px;'>{$elem['site']} {$elem['heures']}</td></tr>\n";
-}
-echo "</table>\n";
-echo "</td>\n";
 
-echo "<td>";
-echo "<b>Equipe 2 ($nb2)</b>\n";
-echo "<table cellspacing='0'> ";
-$class="tr1";
-foreach($eq2 as $elem){
-  $class=$class=="tr1"?"tr2":"tr1";
-  echo "<tr class='$class'><td>{$elem['nom']}</td><td style='padding-left:15px;'>{$elem['site']} {$elem['heures']}</td></tr>\n";
-}
-echo "</table>\n";
-echo "</td>\n";
+$i=0;
+foreach($equipes as $eq){
+  $nb=count($eq);
+  $j=$i+1;
+  usort($eq,"cmp_heures_nom");
 
-echo "<td>";
-echo "<b>Equipe 3 ($nb3)</b>\n";
-echo "<table cellspacing='0'> ";
-$class="tr1";
-foreach($eq3 as $elem){
-  $class=$class=="tr1"?"tr2":"tr1";
-  echo "<tr class='$class'><td>{$elem['nom']}</td><td style='padding-left:15px;'>{$elem['site']} {$elem['heures']}</td></tr>\n";
+  echo "<td>";
+  echo "<b>Equipe $j ($nb)</b><br/>\n";
+  echo heure2($equipes_heures[$i][0])." - ".heure2($equipes_heures[$i][1]);
+
+  echo "<table cellspacing='0' style='margin-top:20px;'> ";
+  $class="tr1";
+  foreach($eq as $elem){
+    $class=$class=="tr1"?"tr2":"tr1";
+    echo "<tr class='$class'><td>{$elem['nom']}</td><td style='padding-left:15px;'>{$elem['site']} {$elem['heures']}</td></tr>\n";
+  }
+  echo "</table>\n";
+  echo "</td>\n";
+  $i++;
 }
-echo "</table>\n";
-echo "</td>\n";
 echo "</tr>\n";
 
+/*
 echo "<tr>\n";
 echo "<td>";
 echo "<b>Autres ($nb4)</b>\n";
@@ -243,7 +271,7 @@ echo "</table>\n";
 echo "</td>\n";
 echo "</tr>\n";
 
-
+*/
 
 
 
@@ -284,5 +312,12 @@ function cmp_h0_h2($a,$b){
     return($a['h2']>$b['h2']);
   }
   return($a['h0']>$b['h0']);
+}
+
+function cmp_heures_nom($a,$b){
+  if($a['heures']==$b['heures']){
+    return($a['nom']>$b['nom']);
+  }
+  return($a['heures']>$b['heures']);
 }
 ?>
