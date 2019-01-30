@@ -6,6 +6,7 @@ class LegacyCodeChecker
 {
     private $twigized = array(
         'absences/infos.php',
+        'statistiques/presents_absents.php',
     );
 
     public function isTwigized($page)
