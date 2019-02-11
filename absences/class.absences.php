@@ -1035,7 +1035,7 @@ class absences
         $this->responsables=$responsables;
     }
 
-    public function getRecipients($validation, $responsables, $perso_id, $mails_responsables)
+    public function getRecipients($validation, $responsables, $perso_id, $mails_responsables, $type = 'Absences')
     {
         /*
         Retourne la liste des destinataires des notifications en fonction du niveau de validation.
@@ -1049,7 +1049,7 @@ class absences
         $mails_responsables : mails de ses responsables (tableau)
         */
 
-        $categories=$GLOBALS['config']["Absences-notifications{$validation}"];
+        $categories=$GLOBALS['config']["{$type}-notifications{$validation}"];
         $categories=json_decode(html_entity_decode(stripslashes($categories), ENT_QUOTES|ENT_IGNORE, 'UTF-8'), true);
         /*
         $categories : Catégories de personnes à qui les notifications doivent être envoyées

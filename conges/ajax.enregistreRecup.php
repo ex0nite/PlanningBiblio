@@ -63,7 +63,7 @@ if ($db->error) {
 
         // Choix des destinataires en fonction de la configuration
         $a = new absences();
-        $a->getRecipients(1, $responsables, $perso_id, $mailsResponsables);
+        $a->getRecipients(1, $responsables, $perso_id, $mailsResponsables, 'Recup');
         $destinataires = $a->recipients;
     }
 

@@ -133,7 +133,7 @@ if (isset($update)) {
         $responsables = $c->responsables;
 
         $a = new absences();
-        $a->getRecipients($notifications, $responsables, $perso_id, $mailsResponsables);
+        $a->getRecipients($notifications, $responsables, $perso_id, $mailsResponsables, 'Recup');
         $destinataires = $a->recipients;
     }
 
